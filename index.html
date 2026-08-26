@@ -1,0 +1,2055 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Mis Finanzas</title>
+
+<!-- Gráficas -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<!-- PDF -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
+
+<style>
+
+*{
+    box-sizing:border-box;
+    margin:0;
+    padding:0;
+}
+
+body{
+    font-family:Arial,Helvetica,sans-serif;
+    background:#f5f7fb;
+    color:#172033;
+    transition:.3s;
+}
+
+body.dark{
+    background:#101522;
+    color:#f5f7fb;
+}
+
+.container{
+    max-width:1250px;
+    margin:auto;
+    padding:30px;
+}
+
+/* HEADER */
+
+header{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-bottom:30px;
+}
+
+.logo h1{
+    font-size:32px;
+}
+
+.logo p{
+    color:#7b8495;
+    margin-top:6px;
+}
+
+.header-buttons{
+    display:flex;
+    gap:10px;
+}
+
+.header-buttons button{
+    width:auto;
+    padding:11px 15px;
+}
+
+/* BOTONES */
+
+button{
+    border:none;
+    border-radius:10px;
+    padding:13px 18px;
+    cursor:pointer;
+    font-weight:bold;
+    transition:.2s;
+}
+
+button:hover{
+    transform:translateY(-1px);
+}
+
+.primary{
+    background:#2563eb;
+    color:white;
+}
+
+.pdf{
+    background:#111827;
+    color:white;
+}
+
+/* TARJETAS */
+
+.cards{
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
+    gap:20px;
+    margin-bottom:25px;
+}
+
+.card{
+    background:white;
+    padding:25px;
+    border-radius:18px;
+    box-shadow:0 8px 25px rgba(0,0,0,.06);
+    position:relative;
+    overflow:hidden;
+}
+
+.dark .card,
+.dark .panel{
+    background:#1a2232;
+}
+
+.card-title{
+    color:#7b8495;
+    font-size:14px;
+    margin-bottom:10px;
+}
+
+.card-value{
+    font-size:31px;
+    font-weight:bold;
+}
+
+.card-description{
+    margin-top:8px;
+    font-size:13px;
+    color:#8a93a3;
+}
+
+.income{
+    color:#16a34a;
+}
+
+.expense{
+    color:#dc2626;
+}
+
+.balance{
+    color:#2563eb;
+}
+
+/* PANELES */
+
+.panel{
+    background:white;
+    border-radius:18px;
+    padding:25px;
+    box-shadow:0 8px 25px rgba(0,0,0,.06);
+    margin-bottom:25px;
+}
+
+.panel-header{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-bottom:20px;
+}
+
+.panel-header h2{
+    font-size:19px;
+}
+
+/* GRAFICAS */
+
+.chart-grid{
+    display:grid;
+    grid-template-columns:1.2fr .8fr;
+    gap:20px;
+}
+
+.chart-container{
+    height:340px;
+    position:relative;
+}
+
+/* FORMULARIO */
+
+form{
+    display:grid;
+    grid-template-columns:repeat(2,1fr);
+    gap:15px;
+}
+
+input,
+select{
+    width:100%;
+    padding:13px;
+    border:1px solid #d8dde7;
+    border-radius:10px;
+    font-size:15px;
+    outline:none;
+}
+
+input:focus,
+select:focus{
+    border-color:#2563eb;
+}
+
+.dark input,
+.dark select{
+    background:#252e40;
+    color:white;
+    border-color:#3c465b;
+}
+
+.full{
+    grid-column:1/-1;
+}
+
+/* FILTROS */
+
+.filters{
+    display:grid;
+    grid-template-columns:1.5fr 1fr 1fr;
+    gap:12px;
+    margin-bottom:20px;
+}
+
+/* TABLA */
+
+.table-container{
+    overflow-x:auto;
+}
+
+table{
+    width:100%;
+    border-collapse:collapse;
+    min-width:850px;
+}
+
+th{
+    color:#7b8495;
+    font-size:13px;
+    text-align:left;
+    padding:14px;
+    border-bottom:1px solid #e5e7eb;
+}
+
+td{
+    padding:15px 14px;
+    border-bottom:1px solid #edf0f4;
+}
+
+.dark th,
+.dark td{
+    border-color:#30394b;
+}
+
+.tag{
+    display:inline-block;
+    padding:5px 10px;
+    border-radius:20px;
+    font-size:12px;
+    font-weight:bold;
+}
+
+.tag-income{
+    background:#dcfce7;
+    color:#166534;
+}
+
+.tag-expense{
+    background:#fee2e2;
+    color:#991b1b;
+}
+
+.actions{
+    display:flex;
+    gap:6px;
+}
+
+.actions button{
+    padding:7px 9px;
+}
+
+.edit{
+    background:#f59e0b;
+    color:white;
+}
+
+.delete{
+    background:#dc2626;
+    color:white;
+}
+
+/* AHORRO */
+
+.saving-info{
+    display:flex;
+    justify-content:space-between;
+    margin-bottom:10px;
+}
+
+.progress{
+    height:15px;
+    background:#e5e7eb;
+    border-radius:20px;
+    overflow:hidden;
+}
+
+.progress-bar{
+    height:100%;
+    width:0%;
+    background:#2563eb;
+    transition:.5s;
+}
+
+/* MENSAJE */
+
+.message{
+    margin-top:15px;
+    font-weight:bold;
+}
+
+/* ESTADISTICAS */
+
+.stats-grid{
+    display:grid;
+    grid-template-columns:repeat(4,1fr);
+    gap:15px;
+}
+
+.stat{
+    background:#f8fafc;
+    padding:18px;
+    border-radius:12px;
+}
+
+.dark .stat{
+    background:#252e40;
+}
+
+.stat small{
+    color:#7b8495;
+}
+
+.stat strong{
+    display:block;
+    margin-top:8px;
+    font-size:20px;
+}
+
+/* RESPONSIVE */
+
+@media(max-width:900px){
+
+    .cards{
+        grid-template-columns:1fr;
+    }
+
+    .chart-grid{
+        grid-template-columns:1fr;
+    }
+
+    .stats-grid{
+        grid-template-columns:repeat(2,1fr);
+    }
+
+}
+
+@media(max-width:650px){
+
+    .container{
+        padding:15px;
+    }
+
+    header{
+        align-items:flex-start;
+        gap:15px;
+    }
+
+    .logo h1{
+        font-size:25px;
+    }
+
+    .header-buttons{
+        flex-direction:column;
+    }
+
+    form{
+        grid-template-columns:1fr;
+    }
+
+    .full{
+        grid-column:auto;
+    }
+
+    .filters{
+        grid-template-columns:1fr;
+    }
+
+    .stats-grid{
+        grid-template-columns:1fr;
+    }
+
+}
+
+</style>
+</head>
+
+
+<body>
+
+<div class="container">
+
+
+<!-- HEADER -->
+
+<header>
+
+<div class="logo">
+
+<h1>💰 Mis Finanzas</h1>
+
+<p>Tu control financiero personal</p>
+
+</div>
+
+
+<div class="header-buttons">
+
+<button
+class="pdf"
+onclick="generarPDF()">
+
+📄 Reporte PDF
+
+</button>
+
+<button
+class="primary"
+onclick="modoOscuro()">
+
+🌙
+
+</button>
+
+</div>
+
+</header>
+
+
+<!-- RESUMEN -->
+
+<div class="cards">
+
+
+<div class="card">
+
+<div class="card-title">
+💵 INGRESOS
+</div>
+
+<div
+class="card-value income"
+id="totalIngresos">
+
+$0.00
+
+</div>
+
+<div class="card-description">
+Total recibido
+</div>
+
+</div>
+
+
+<div class="card">
+
+<div class="card-title">
+💸 GASTOS
+</div>
+
+<div
+class="card-value expense"
+id="totalGastos">
+
+$0.00
+
+</div>
+
+<div class="card-description">
+Total gastado
+</div>
+
+</div>
+
+
+<div class="card">
+
+<div class="card-title">
+🏦 SALDO DISPONIBLE
+</div>
+
+<div
+class="card-value balance"
+id="saldo">
+
+$0.00
+
+</div>
+
+<div class="card-description">
+Ingresos menos gastos
+</div>
+
+</div>
+
+
+</div>
+
+
+<!-- ESTADISTICAS -->
+
+<div class="panel">
+
+<div class="panel-header">
+
+<h2>📊 Resumen financiero</h2>
+
+</div>
+
+
+<div class="stats-grid">
+
+
+<div class="stat">
+
+<small>Movimientos</small>
+
+<strong id="cantidadMovimientos">
+0
+</strong>
+
+</div>
+
+
+<div class="stat">
+
+<small>Promedio de gasto</small>
+
+<strong id="promedioGasto">
+$0.00
+</strong>
+
+</div>
+
+
+<div class="stat">
+
+<small>Mayor gasto</small>
+
+<strong id="mayorGasto">
+$0.00
+</strong>
+
+</div>
+
+
+<div class="stat">
+
+<small>% de ahorro</small>
+
+<strong id="porcentajeAhorro">
+0%
+</strong>
+
+</div>
+
+
+</div>
+
+</div>
+
+
+<!-- GRAFICAS -->
+
+<div class="chart-grid">
+
+
+<div class="panel">
+
+<div class="panel-header">
+
+<h2>📈 Ingresos vs. Gastos</h2>
+
+</div>
+
+<div class="chart-container">
+
+<canvas id="graficaGeneral"></canvas>
+
+</div>
+
+</div>
+
+
+<div class="panel">
+
+<div class="panel-header">
+
+<h2>🍔 Gastos por categoría</h2>
+
+</div>
+
+<div class="chart-container">
+
+<canvas id="graficaCategorias"></canvas>
+
+</div>
+
+</div>
+
+
+</div>
+
+
+<!-- NUEVO MOVIMIENTO -->
+
+<div class="panel">
+
+<div class="panel-header">
+
+<h2>➕ Nuevo movimiento</h2>
+
+</div>
+
+
+<form id="formulario">
+
+
+<select id="tipo" required>
+
+<option value="">
+Selecciona tipo
+</option>
+
+<option value="Ingreso">
+💵 Ingreso
+</option>
+
+<option value="Gasto">
+💸 Gasto
+</option>
+
+</select>
+
+
+<input
+type="number"
+id="monto"
+placeholder="Monto"
+step="0.01"
+min="0"
+required
+>
+
+
+<select id="categoria" required>
+
+<option value="">
+Selecciona categoría
+</option>
+
+<option>Comida</option>
+<option>Transporte</option>
+<option>Gimnasio</option>
+<option>Entretenimiento</option>
+<option>Casa</option>
+<option>Trabajo</option>
+<option>Salud</option>
+<option>Educación</option>
+<option>Ahorro</option>
+<option>Otros</option>
+
+</select>
+
+
+<input
+type="date"
+id="fecha"
+required
+>
+
+
+<input
+class="full"
+type="text"
+id="descripcion"
+placeholder="Descripción"
+required
+>
+
+
+<button
+class="primary full"
+type="submit">
+
+GUARDAR MOVIMIENTO
+
+</button>
+
+
+</form>
+
+
+<div
+class="message"
+id="mensaje">
+</div>
+
+</div>
+
+
+<!-- META DE AHORRO -->
+
+<div class="panel">
+
+<div class="panel-header">
+
+<h2>🎯 Meta de ahorro</h2>
+
+</div>
+
+
+<div class="saving-info">
+
+<span>
+Meta:
+<strong id="metaTexto">
+$10,000
+</strong>
+</span>
+
+<span>
+Ahorrado:
+<strong id="ahorroActual">
+$0
+</strong>
+</span>
+
+</div>
+
+
+<div class="progress">
+
+<div
+class="progress-bar"
+id="barraAhorro">
+</div>
+
+</div>
+
+
+<br>
+
+
+<input
+type="number"
+id="metaAhorro"
+value="10000"
+min="0"
+placeholder="Escribe tu meta de ahorro"
+onchange="actualizarAhorro()"
+>
+
+</div>
+
+
+<!-- HISTORIAL -->
+
+<div class="panel">
+
+<div class="panel-header">
+
+<h2>📋 Historial</h2>
+
+</div>
+
+
+<div class="filters">
+
+
+<input
+type="text"
+id="buscar"
+placeholder="🔎 Buscar movimiento..."
+oninput="mostrarMovimientos()"
+>
+
+
+<select
+id="filtroTipo"
+onchange="mostrarMovimientos()">
+
+<option value="">
+Todos los tipos
+</option>
+
+<option value="Ingreso">
+Ingresos
+</option>
+
+<option value="Gasto">
+Gastos
+</option>
+
+</select>
+
+
+<select
+id="filtroCategoria"
+onchange="mostrarMovimientos()">
+
+<option value="">
+Todas las categorías
+</option>
+
+<option>Comida</option>
+<option>Transporte</option>
+<option>Gimnasio</option>
+<option>Entretenimiento</option>
+<option>Casa</option>
+<option>Trabajo</option>
+<option>Salud</option>
+<option>Educación</option>
+<option>Ahorro</option>
+<option>Otros</option>
+
+</select>
+
+
+</div>
+
+
+<div class="table-container">
+
+<table>
+
+<thead>
+
+<tr>
+
+<th>Fecha</th>
+<th>Tipo</th>
+<th>Categoría</th>
+<th>Descripción</th>
+<th>Monto</th>
+<th>Acciones</th>
+
+</tr>
+
+</thead>
+
+
+<tbody id="movimientos">
+
+</tbody>
+
+</table>
+
+</div>
+
+</div>
+
+
+</div>
+
+
+<script>
+
+
+const URL_APPS_SCRIPT =
+"https://script.google.com/macros/s/AKfycbzuBUMj77wYyhqhzMmgXdPZ_XDAEq-4d3dq4WAGgYBocBtJDPZ_3_1zMOugq017PFYH/exec";
+
+
+let movimientos = [];
+
+let graficaGeneral = null;
+
+let graficaCategorias = null;
+
+let editando = null;
+
+
+/* FECHA */
+
+document.getElementById("fecha").value =
+new Date().toISOString().split("T")[0];
+
+
+/* ============================
+   CARGAR
+============================ */
+
+async function cargarMovimientos(){
+
+try{
+
+const respuesta =
+await fetch(URL_APPS_SCRIPT);
+
+const datos =
+await respuesta.json();
+
+movimientos =
+datos.movimientos || [];
+
+mostrarMovimientos();
+
+actualizarResumen();
+
+crearGraficas();
+
+actualizarAhorro();
+
+}
+
+catch(error){
+
+console.error(error);
+
+document.getElementById("mensaje").textContent =
+"❌ Error cargando los datos.";
+
+}
+
+}
+
+
+/* ============================
+   GUARDAR
+============================ */
+
+document
+.getElementById("formulario")
+.addEventListener(
+"submit",
+async function(e){
+
+e.preventDefault();
+
+
+const datos = {
+
+accion:
+editando
+? "editar"
+: "agregar",
+
+id:
+editando,
+
+fecha:
+document.getElementById("fecha").value,
+
+tipo:
+document.getElementById("tipo").value,
+
+categoria:
+document.getElementById("categoria").value,
+
+descripcion:
+document.getElementById("descripcion").value,
+
+monto:
+document.getElementById("monto").value
+
+};
+
+
+try{
+
+await fetch(
+
+URL_APPS_SCRIPT,
+
+{
+
+method:"POST",
+
+mode:"no-cors",
+
+headers:{
+"Content-Type":
+"text/plain;charset=utf-8"
+},
+
+body:
+JSON.stringify(datos)
+
+}
+
+);
+
+
+document.getElementById("mensaje")
+.textContent =
+editando
+? "✅ Movimiento actualizado"
+: "✅ Movimiento guardado";
+
+
+editando = null;
+
+this.reset();
+
+
+document.getElementById("fecha").value =
+new Date().toISOString().split("T")[0];
+
+
+setTimeout(
+cargarMovimientos,
+700
+);
+
+}
+
+catch(error){
+
+console.error(error);
+
+document.getElementById("mensaje")
+.textContent =
+"❌ Error.";
+
+}
+
+});
+
+
+/* ============================
+   TABLA
+============================ */
+
+function mostrarMovimientos(){
+
+const tabla =
+document.getElementById("movimientos");
+
+tabla.innerHTML = "";
+
+
+const buscar =
+document.getElementById("buscar")
+.value.toLowerCase();
+
+const filtroTipo =
+document.getElementById("filtroTipo")
+.value;
+
+const filtroCategoria =
+document.getElementById("filtroCategoria")
+.value;
+
+
+const filtrados =
+movimientos.filter(mov => {
+
+const texto =
+(
+mov.descripcion +
+" " +
+mov.categoria
+).toLowerCase();
+
+
+return (
+
+texto.includes(buscar)
+
+&&
+
+(
+!filtroTipo ||
+mov.tipo === filtroTipo
+)
+
+&&
+
+(
+!filtroCategoria ||
+mov.categoria === filtroCategoria
+)
+
+);
+
+});
+
+
+filtrados.forEach(mov => {
+
+const fila =
+document.createElement("tr");
+
+
+fila.innerHTML = `
+
+<td>${mov.fecha}</td>
+
+<td>
+
+<span class="tag ${
+mov.tipo === "Ingreso"
+? "tag-income"
+: "tag-expense"
+}">
+
+${mov.tipo}
+
+</span>
+
+</td>
+
+<td>${mov.categoria}</td>
+
+<td>${mov.descripcion}</td>
+
+<td>
+
+$${Number(mov.monto)
+.toLocaleString(
+"es-MX",
+{
+minimumFractionDigits:2
+}
+)}
+
+</td>
+
+<td>
+
+<div class="actions">
+
+<button
+class="edit"
+onclick="editar('${mov.id}')">
+
+✏️
+
+</button>
+
+<button
+class="delete"
+onclick="eliminar('${mov.id}')">
+
+🗑️
+
+</button>
+
+</div>
+
+</td>
+
+`;
+
+
+tabla.appendChild(fila);
+
+});
+
+}
+
+
+/* ============================
+   RESUMEN
+============================ */
+
+function actualizarResumen(){
+
+let ingresos = 0;
+
+let gastos = 0;
+
+let mayorGasto = 0;
+
+
+movimientos.forEach(mov => {
+
+const monto =
+Number(mov.monto);
+
+
+if(mov.tipo === "Ingreso"){
+
+ingresos += monto;
+
+}
+
+
+if(mov.tipo === "Gasto"){
+
+gastos += monto;
+
+if(monto > mayorGasto){
+
+mayorGasto = monto;
+
+}
+
+}
+
+});
+
+
+const saldo =
+ingresos - gastos;
+
+
+document.getElementById("totalIngresos")
+.textContent =
+"$" +
+ingresos.toLocaleString(
+"es-MX",
+{
+minimumFractionDigits:2
+}
+);
+
+
+document.getElementById("totalGastos")
+.textContent =
+"$" +
+gastos.toLocaleString(
+"es-MX",
+{
+minimumFractionDigits:2
+}
+);
+
+
+document.getElementById("saldo")
+.textContent =
+"$" +
+saldo.toLocaleString(
+"es-MX",
+{
+minimumFractionDigits:2
+}
+);
+
+
+document.getElementById(
+"cantidadMovimientos"
+).textContent =
+movimientos.length;
+
+
+const promedio =
+movimientos.filter(
+m => m.tipo === "Gasto"
+).length
+? gastos /
+movimientos.filter(
+m => m.tipo === "Gasto"
+).length
+: 0;
+
+
+document.getElementById(
+"promedioGasto"
+).textContent =
+"$" +
+promedio.toLocaleString(
+"es-MX",
+{
+minimumFractionDigits:2
+}
+);
+
+
+document.getElementById(
+"mayorGasto"
+).textContent =
+"$" +
+mayorGasto.toLocaleString(
+"es-MX",
+{
+minimumFractionDigits:2
+}
+);
+
+
+const ahorroPorcentaje =
+ingresos > 0
+? (saldo / ingresos) * 100
+: 0;
+
+
+document.getElementById(
+"porcentajeAhorro"
+).textContent =
+ahorroPorcentaje.toFixed(1)
++ "%";
+
+}
+
+
+/* ============================
+   EDITAR
+============================ */
+
+function editar(id){
+
+const mov =
+movimientos.find(
+m =>
+String(m.id) === String(id)
+);
+
+if(!mov) return;
+
+
+editando = mov.id;
+
+
+document.getElementById("fecha")
+.value = mov.fecha;
+
+document.getElementById("tipo")
+.value = mov.tipo;
+
+document.getElementById("categoria")
+.value =
+mov.categoria;
+
+document.getElementById("descripcion")
+.value =
+mov.descripcion;
+
+document.getElementById("monto")
+.value =
+mov.monto;
+
+
+document.getElementById("mensaje")
+.textContent =
+"✏️ Editando movimiento";
+
+
+window.scrollTo({
+
+top:0,
+
+behavior:"smooth"
+
+});
+
+}
+
+
+/* ============================
+   ELIMINAR
+============================ */
+
+async function eliminar(id){
+
+if(
+!confirm(
+"¿Quieres eliminar este movimiento?"
+)
+)
+return;
+
+
+try{
+
+await fetch(
+
+URL_APPS_SCRIPT,
+
+{
+
+method:"POST",
+
+mode:"no-cors",
+
+headers:{
+"Content-Type":
+"text/plain;charset=utf-8"
+},
+
+body:
+JSON.stringify({
+
+accion:"eliminar",
+
+id:id
+
+})
+
+}
+
+);
+
+
+document.getElementById("mensaje")
+.textContent =
+"🗑️ Movimiento eliminado";
+
+
+setTimeout(
+cargarMovimientos,
+700
+);
+
+}
+
+catch(error){
+
+console.error(error);
+
+}
+
+}
+
+
+/* ============================
+   GRAFICAS
+============================ */
+
+function crearGraficas(){
+
+let ingresos = 0;
+
+let gastos = 0;
+
+const categorias = {};
+
+
+movimientos.forEach(mov => {
+
+const monto =
+Number(mov.monto);
+
+
+if(mov.tipo === "Ingreso")
+ingresos += monto;
+
+
+if(mov.tipo === "Gasto"){
+
+gastos += monto;
+
+
+if(!categorias[mov.categoria])
+categorias[mov.categoria] = 0;
+
+
+categorias[mov.categoria] +=
+monto;
+
+}
+
+});
+
+
+/* GRAFICA GENERAL */
+
+if(graficaGeneral)
+graficaGeneral.destroy();
+
+
+graficaGeneral =
+new Chart(
+
+document.getElementById(
+"graficaGeneral"
+),
+
+{
+
+type:"bar",
+
+data:{
+
+labels:[
+"Ingresos",
+"Gastos"
+],
+
+datasets:[{
+
+label:
+"Cantidad",
+
+data:[
+ingresos,
+gastos
+],
+
+borderRadius:10,
+
+borderWidth:0
+
+}]
+
+},
+
+options:{
+
+responsive:true,
+
+maintainAspectRatio:false,
+
+plugins:{
+
+legend:{
+display:false
+},
+
+tooltip:{
+
+callbacks:{
+
+label:function(context){
+
+return "$" +
+Number(
+context.raw
+).toLocaleString(
+"es-MX",
+{
+minimumFractionDigits:2
+}
+);
+
+}
+
+}
+
+}
+
+},
+
+scales:{
+
+y:{
+
+beginAtZero:true,
+
+ticks:{
+
+callback:function(value){
+
+return "$" +
+Number(value)
+.toLocaleString(
+"es-MX"
+);
+
+}
+
+}
+
+},
+
+x:{
+
+grid:{
+display:false
+}
+
+}
+
+}
+
+}
+
+}
+
+);
+
+
+/* GRAFICA CATEGORIAS */
+
+if(graficaCategorias)
+graficaCategorias.destroy();
+
+
+graficaCategorias =
+new Chart(
+
+document.getElementById(
+"graficaCategorias"
+),
+
+{
+
+type:"doughnut",
+
+data:{
+
+labels:
+Object.keys(categorias),
+
+datasets:[{
+
+data:
+Object.values(categorias),
+
+borderWidth:3
+
+}]
+
+},
+
+options:{
+
+responsive:true,
+
+maintainAspectRatio:false,
+
+cutout:"65%",
+
+plugins:{
+
+legend:{
+
+position:"bottom"
+
+},
+
+tooltip:{
+
+callbacks:{
+
+label:function(context){
+
+const total =
+context.dataset.data
+.reduce(
+(a,b)=>a+b,
+0
+);
+
+const porcentaje =
+(
+context.raw /
+total
+) * 100;
+
+
+return context.label +
+": $" +
+Number(
+context.raw
+).toLocaleString(
+"es-MX",
+{
+minimumFractionDigits:2
+}
+) +
+" (" +
+porcentaje.toFixed(1) +
+"%)";
+
+}
+
+}
+
+}
+
+}
+
+}
+
+}
+
+);
+
+}
+
+
+/* ============================
+   AHORRO
+============================ */
+
+function actualizarAhorro(){
+
+const meta =
+Number(
+document.getElementById(
+"metaAhorro"
+).value
+) || 0;
+
+
+let ingresos = 0;
+
+let gastos = 0;
+
+
+movimientos.forEach(mov => {
+
+if(mov.tipo === "Ingreso")
+ingresos +=
+Number(mov.monto);
+
+if(mov.tipo === "Gasto")
+gastos +=
+Number(mov.monto);
+
+});
+
+
+const ahorro =
+Math.max(
+0,
+ingresos - gastos
+);
+
+
+const porcentaje =
+meta > 0
+? Math.min(
+100,
+(ahorro / meta) * 100
+)
+: 0;
+
+
+document.getElementById(
+"metaTexto"
+).textContent =
+"$" +
+meta.toLocaleString(
+"es-MX"
+);
+
+
+document.getElementById(
+"ahorroActual"
+).textContent =
+"$" +
+ahorro.toLocaleString(
+"es-MX"
+);
+
+
+document.getElementById(
+"barraAhorro"
+).style.width =
+porcentaje + "%";
+
+}
+
+
+/* ============================
+   MODO OSCURO
+============================ */
+
+function modoOscuro(){
+
+document.body
+.classList
+.toggle("dark");
+
+}
+
+
+/* ============================
+   PDF
+============================ */
+
+function generarPDF(){
+
+const {
+jsPDF
+} = window.jspdf;
+
+
+const doc =
+new jsPDF();
+
+
+let ingresos = 0;
+
+let gastos = 0;
+
+let mayorGasto = 0;
+
+const categorias = {};
+
+
+movimientos.forEach(mov => {
+
+const monto =
+Number(mov.monto);
+
+
+if(mov.tipo === "Ingreso")
+ingresos += monto;
+
+
+if(mov.tipo === "Gasto"){
+
+gastos += monto;
+
+
+if(monto > mayorGasto)
+mayorGasto = monto;
+
+
+if(!categorias[mov.categoria])
+categorias[mov.categoria] = 0;
+
+
+categorias[mov.categoria] +=
+monto;
+
+}
+
+});
+
+
+const saldo =
+ingresos - gastos;
+
+
+/* TITULO */
+
+doc.setFontSize(24);
+
+doc.text(
+"Mis Finanzas",
+20,
+25
+);
+
+
+doc.setFontSize(12);
+
+doc.text(
+"Reporte financiero personal",
+20,
+34
+);
+
+
+doc.text(
+"Fecha: " +
+new Date()
+.toLocaleDateString(
+"es-MX"
+),
+20,
+42
+);
+
+
+/* RESUMEN */
+
+doc.setFontSize(15);
+
+doc.text(
+"Resumen financiero",
+20,
+57
+);
+
+
+doc.setFontSize(11);
+
+doc.text(
+"Ingresos: $" +
+ingresos.toLocaleString(
+"es-MX",
+{
+minimumFractionDigits:2
+}
+),
+20,
+67
+);
+
+
+doc.text(
+"Gastos: $" +
+gastos.toLocaleString(
+"es-MX",
+{
+minimumFractionDigits:2
+}
+),
+20,
+75
+);
+
+
+doc.text(
+"Saldo: $" +
+saldo.toLocaleString(
+"es-MX",
+{
+minimumFractionDigits:2
+}
+),
+20,
+83
+);
+
+
+doc.text(
+"Movimientos: " +
+movimientos.length,
+20,
+91
+);
+
+
+doc.text(
+"Mayor gasto: $" +
+mayorGasto.toLocaleString(
+"es-MX",
+{
+minimumFractionDigits:2
+}
+),
+20,
+99
+);
+
+
+/* TABLA */
+
+const filas =
+movimientos.map(
+mov => [
+
+mov.fecha,
+
+mov.tipo,
+
+mov.categoria,
+
+mov.descripcion,
+
+"$" +
+Number(mov.monto)
+.toLocaleString(
+"es-MX",
+{
+minimumFractionDigits:2
+}
+)
+
+]
+);
+
+
+doc.autoTable({
+
+startY:110,
+
+head:[[
+"Fecha",
+"Tipo",
+"Categoría",
+"Descripción",
+"Monto"
+]],
+
+body:filas,
+
+styles:{
+fontSize:9
+},
+
+headStyles:{
+fontSize:9
+}
+
+});
+
+
+/* CATEGORIAS */
+
+let y =
+doc.lastAutoTable.finalY + 15;
+
+
+if(y > 260){
+
+doc.addPage();
+
+y = 20;
+
+}
+
+
+doc.setFontSize(15);
+
+doc.text(
+"Gastos por categoría",
+20,
+y
+);
+
+
+y += 8;
+
+
+Object.entries(
+categorias
+).forEach(
+([categoria,monto]) => {
+
+doc.setFontSize(10);
+
+doc.text(
+
+categoria +
+": $" +
+monto.toLocaleString(
+"es-MX",
+{
+minimumFractionDigits:2
+}
+),
+
+20,
+y
+);
+
+y += 7;
+
+}
+);
+
+
+/* GUARDAR */
+
+doc.save(
+"Reporte-Mis-Finanzas.pdf"
+);
+
+}
+
+
+/* INICIAR */
+
+cargarMovimientos();
+
+</script>
+
+</body>
+</html>
